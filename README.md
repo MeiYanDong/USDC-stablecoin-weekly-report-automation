@@ -21,6 +21,11 @@
 - `usdc_transfer_volume_share_7d`
   基于 Dune query 输出的稳定币 7 天链上转账量结果，取 USDC 的近 7 天转账量，除以分母集合近 7 天转账量之和。
 
+消息展示说明：
+
+- 供给类金额在飞书消息中使用 `亿 USD` 展示，便于快速阅读。
+- 历史文件中的 `metrics` 仍保存原始 USD 数值，不会做缩放。
+
 ## Dune Query 输出约定
 
 推荐在 Dune 上准备一个 query，输出按 stablecoin 聚合后的结果表，至少包含：

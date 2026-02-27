@@ -23,6 +23,7 @@ REQUEST_TIMEOUT_SECONDS = 20
 HISTORY_PATH = Path("data/weekly_history.json")
 ENV_PATH = Path(".env")
 MAX_HISTORY_ITEMS = 52
+CURRENCY_EYI_DIVISOR = 100_000_000
 
 DEFI_LLAMA_STABLECOINS_URL = "https://stablecoins.llama.fi/stablecoins"
 DEFI_LLAMA_CHART_URL = "https://stablecoins.llama.fi/stablecoincharts/all"
@@ -139,7 +140,7 @@ def is_force_run_enabled() -> bool:
 def format_currency(value: float | None) -> str:
     if value is None:
         return "N/A"
-    return f"${value:,.2f}"
+    return f"{value / CURRENCY_EYI_DIVISOR:,.2f} 亿 USD"
 
 
 def format_percentage(value: float | None) -> str:
