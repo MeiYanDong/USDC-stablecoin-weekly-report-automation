@@ -2,6 +2,11 @@ name: Stablecoin Weekly
 
 on:
   workflow_dispatch:
+    inputs:
+      report_date_override:
+        description: "Optional report date in Asia/Shanghai, format YYYY-MM-DD"
+        required: false
+        type: string
   schedule:
     - cron: "0 23 * * 0"
 
@@ -15,7 +20,7 @@ jobs:
       DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
       DUNE_QUERY_ID: ${{ secrets.DUNE_QUERY_ID }}
       FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
-      FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
+      REPORT_DATE_OVERRIDE: ${{ inputs.report_date_override }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

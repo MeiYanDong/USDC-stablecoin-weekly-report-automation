@@ -16,9 +16,6 @@ from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponen
 
 REPORT_TZ = ZoneInfo("Asia/Shanghai")
 REPORT_TIME_LABEL = "北京时间"
-RUN_WEEKDAY = 0
-RUN_HOUR = 7
-RUN_MINUTE = 0
 REQUEST_TIMEOUT_SECONDS = 20
 HISTORY_PATH = Path("data/weekly_history.json")
 ENV_PATH = Path(".env")
@@ -102,17 +99,16 @@ def log(message: str) -> None:
 
 
 def get_report_now() -> datetime:
+    override_value = get_optional_env("REPORT_DATE_OVERRIDE")
+    if override_value:
+        try:
+            override_date = date.fromisoformat(override_value)
+        except ValueError as exc:
+            raise WeeklyReportError(
+                "REPORT_DATE_OVERRIDE must use YYYY-MM-DD format"
+            ) from exc
+        return datetime.combine(override_date, datetime.min.time(), tzinfo=REPORT_TZ)
     return datetime.now(tz=REPORT_TZ)
-
-
-def should_run_now(report_now: datetime, force_run: bool) -> bool:
-    if force_run:
-        return True
-    return (
-        report_now.weekday() == RUN_WEEKDAY
-        and report_now.hour == RUN_HOUR
-        and report_now.minute == RUN_MINUTE
-    )
 
 
 def get_report_window(report_now: datetime) -> tuple[date, date]:
@@ -131,10 +127,6 @@ def get_required_env(name: str) -> str:
 def get_optional_env(name: str) -> str | None:
     value = os.getenv(name, "").strip()
     return value or None
-
-
-def is_force_run_enabled() -> bool:
-    return os.getenv("FORCE_RUN", "").strip() == "1"
 
 
 def format_currency(value: float | None) -> str:
@@ -663,10 +655,6 @@ def notify_failure(
 
 def run_report() -> int:
     run_time_report_tz = get_report_now()
-    force_run = is_force_run_enabled()
-    if not should_run_now(run_time_report_tz, force_run):
-        log("Current Beijing time is outside Monday 07:00 window. Exiting without work.")
-        return 0
 
     partial_metrics: dict[str, float | None] = {
         "total_supply_usd": None,
@@ -685,6 +673,10 @@ def run_report() -> int:
             dune_query_id = int(get_required_env("DUNE_QUERY_ID"))
             webhook_url = get_required_env("FEISHU_WEBHOOK_URL")
 
+            log(
+                f"Starting report for {run_time_report_tz.date().isoformat()} "
+                f"({REPORT_TIME_LABEL})"
+            )
             log("Fetching DefiLlama stablecoin list")
             pegged_assets = fetch_defillama_stablecoins(session)
 

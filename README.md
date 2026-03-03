@@ -60,7 +60,7 @@ PowerShell:
 $env:DUNE_API_KEY="your-dune-api-key"
 $env:DUNE_QUERY_ID="your-dune-query-id"
 $env:FEISHU_WEBHOOK_URL="https://open.feishu.cn/open-apis/bot/v2/hook/xxxxx"
-$env:FORCE_RUN="1"
+$env:REPORT_DATE_OVERRIDE="2026-03-02"
 ```
 
 Bash:
@@ -69,7 +69,7 @@ Bash:
 export DUNE_API_KEY="your-dune-api-key"
 export DUNE_QUERY_ID="your-dune-query-id"
 export FEISHU_WEBHOOK_URL="https://open.feishu.cn/open-apis/bot/v2/hook/xxxxx"
-export FORCE_RUN="1"
+export REPORT_DATE_OVERRIDE="2026-03-02"
 ```
 
 说明：
@@ -77,7 +77,7 @@ export FORCE_RUN="1"
 - `DUNE_API_KEY` 必填。
 - `DUNE_QUERY_ID` 必填。
 - `FEISHU_WEBHOOK_URL` 必填。
-- `FORCE_RUN=1` 仅用于手动调试。正常定时运行不需要设置。
+- `REPORT_DATE_OVERRIDE` 可选，仅在需要补发指定统计日时设置，格式为 `YYYY-MM-DD`。
 - 脚本启动时会自动读取仓库根目录下的 `.env` 文件。
 
 ### 3. 执行脚本
@@ -86,7 +86,7 @@ export FORCE_RUN="1"
 python stablecoin_weekly.py
 ```
 
-脚本默认只会在北京时间周一 `07:00` 继续执行。手动调试请设置 `FORCE_RUN=1`。
+脚本本身不再做固定时刻门禁，定时执行完全由 GitHub Actions 的 cron 控制。手动补发时如果要指定统计日，可设置 `REPORT_DATE_OVERRIDE`。
 
 ## GitHub Actions 配置
 
@@ -105,7 +105,7 @@ python stablecoin_weekly.py
 - `schedule`
   每周一北京时间 `07:00` 触发一次，对应 GitHub Actions 的 cron 为每周日 `23:00 UTC`。
 - `workflow_dispatch`
-  支持手动触发。工作流会自动把 `FORCE_RUN=1` 注入脚本，方便手动联调。
+  支持手动触发，并可选传入 `report_date_override` 来补发指定统计日。
 
 ### 历史文件回写
 
@@ -146,7 +146,7 @@ python stablecoin_weekly.py
 - `missing_symbols` 不为空
   说明部分 DefiLlama top20 稳定币没有出现在 Dune query 结果中，脚本会自动从分母中跳过这些 symbol。
 - 手动执行没有真正跑任务
-  本地运行时请确认设置了 `FORCE_RUN=1`。GitHub Actions 的 `workflow_dispatch` 已自动注入该变量。
+  脚本已移除时间门禁。若要补发历史一期，请确认传入了正确的 `REPORT_DATE_OVERRIDE`。
 
 ## Dune SQL 示例
 
