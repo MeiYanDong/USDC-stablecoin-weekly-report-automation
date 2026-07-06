@@ -352,5 +352,21 @@
       "u",
       "ylds"
     ]
+  },
+  {
+    "run_time_beijing": "2026-07-06T08:00:28+08:00",
+    "start_date": "2026-06-29",
+    "end_date": "2026-07-05",
+    "metrics": {
+      "total_supply_usd": 309348200906.42,
+      "usdc_supply_usd": 72999254357.15694,
+      "usdc_supply_share": 0.23597762696942184,
+      "usdc_transfer_volume_share_7d": 0.7643958012300534
+    },
+    "missing_symbols": [
+      "usyc",
+      "u",
+      "ylds"
+    ]
   }
 ]
